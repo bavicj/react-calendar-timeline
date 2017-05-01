@@ -312,7 +312,12 @@ export default class ReactCalendarTimeline extends Component {
 
   resize (props) {
     // FIXME currently when the component creates a scroll the scrollbar is not used in the initial width calculation, resizing fixes this
-    const {width: containerWidth, top: containerTop} = this.refs.container.getBoundingClientRect()
+    let {width: containerWidth, top: containerTop} = this.refs.container.getBoundingClientRect()
+
+    if (containerWidth > this.refs.container.clientWidth) {
+      containerWidth = this.refs.container.clientWidth
+    }
+
     let width = containerWidth - props.sidebarWidth
 
     const {

@@ -224,11 +224,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function componentDidMount() {
 	      var _this2 = this;
 	
-	      this.resize();
+	      this.resize(this.props);
 	
 	      this.resizeEventListener = {
 	        handleEvent: function handleEvent(event) {
-	          _this2.resize();
+	          _this2.resize(_this2.props);
 	        }
 	      };
 	
@@ -250,15 +250,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'resize',
-	    value: function resize() {
+	    value: function resize(props) {
 	      // FIXME currently when the component creates a scroll the scrollbar is not used in the initial width calculation, resizing fixes this
 	      var _refs$container$getBo = this.refs.container.getBoundingClientRect(),
 	          containerWidth = _refs$container$getBo.width,
 	          containerTop = _refs$container$getBo.top;
 	
-	      var width = containerWidth - this.props.sidebarWidth;
+	      if (containerWidth > this.refs.container.clientWidth) {
+	        containerWidth = this.refs.container.clientWidth;
+	      }
 	
-	      var _stackItems = this.stackItems(this.props.items, this.props.groups, this.state.canvasTimeStart, this.state.visibleTimeStart, this.state.visibleTimeEnd, width),
+	      var width = containerWidth - props.sidebarWidth;
+	
+	      var _stackItems = this.stackItems(props.items, props.groups, this.state.canvasTimeStart, this.state.visibleTimeStart, this.state.visibleTimeEnd, width),
 	          dimensionItems = _stackItems.dimensionItems,
 	          height = _stackItems.height,
 	          groupHeights = _stackItems.groupHeights,
@@ -280,7 +284,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var visibleTimeStart = nextProps.visibleTimeStart,
 	          visibleTimeEnd = nextProps.visibleTimeEnd,
 	          items = nextProps.items,
-	          groups = nextProps.groups;
+	          groups = nextProps.groups,
+	          sidebarWidth = nextProps.sidebarWidth;
 	
 	
 	      if (visibleTimeStart && visibleTimeEnd) {
@@ -289,6 +294,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	      if (items !== this.props.items || groups !== this.props.groups) {
 	        this.updateDimensions(items, groups);
+	      }
+	      if (sidebarWidth && items && groups) {
+	        this.resize(nextProps);
 	      }
 	    }
 	  }, {
@@ -1198,12 +1206,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	// import ItemGroup from './ItemGroup'
 	
 	var canResizeLeft = function canResizeLeft(item, canResize) {
-	  var value = (0, _utils._get)(item, 'canResize') !== undefined ? (0, _utils._get)(item, 'canResize') : undefined.props.canResize;
+	  var value = (0, _utils._get)(item, 'canResize') !== undefined ? (0, _utils._get)(item, 'canResize') : canResize;
 	  return value === 'left' || value === 'both';
 	};
 	
 	var canResizeRight = function canResizeRight(item, canResize) {
-	  var value = (0, _utils._get)(item, 'canResize') !== undefined ? (0, _utils._get)(item, 'canResize') : undefined.props.canResize;
+	  var value = (0, _utils._get)(item, 'canResize') !== undefined ? (0, _utils._get)(item, 'canResize') : canResize;
 	  return value === 'right' || value === 'both' || value === true;
 	};
 	
@@ -2862,35 +2870,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	      // add the top header
 	      if (twoHeaders) {
-	        (function () {
-	          var nextUnit = (0, _utils.getNextUnit)(minUnit);
+	        var nextUnit = (0, _utils.getNextUnit)(minUnit);
 	
-	          (0, _utils.iterateTimes)(visibleTimeStart, visibleTimeEnd, nextUnit, timeSteps, function (time, nextTime) {
-	            var startTime = Math.max(visibleTimeStart, time.valueOf());
-	            var endTime = Math.min(visibleTimeEnd, nextTime.valueOf());
-	            var left = Math.round((startTime.valueOf() - canvasTimeStart) * ratio, -2);
-	            var right = Math.round((endTime.valueOf() - canvasTimeStart) * ratio, -2);
-	            var labelWidth = right - left;
-	            var leftCorrect = fixedHeader === 'fixed' ? Math.round((canvasTimeStart - visibleTimeStart) * ratio) - 1 : 0;
+	        (0, _utils.iterateTimes)(visibleTimeStart, visibleTimeEnd, nextUnit, timeSteps, function (time, nextTime) {
+	          var startTime = Math.max(visibleTimeStart, time.valueOf());
+	          var endTime = Math.min(visibleTimeEnd, nextTime.valueOf());
+	          var left = Math.round((startTime.valueOf() - canvasTimeStart) * ratio, -2);
+	          var right = Math.round((endTime.valueOf() - canvasTimeStart) * ratio, -2);
+	          var labelWidth = right - left;
+	          var leftCorrect = fixedHeader === 'fixed' ? Math.round((canvasTimeStart - visibleTimeStart) * ratio) - 1 : 0;
 	
-	            timeLabels.push(_react2.default.createElement(
-	              'div',
-	              { key: 'top-label-' + time.valueOf(),
-	                href: '#',
-	                className: 'rct-label-group',
-	                'data-time': time,
-	                'data-unit': nextUnit,
-	                style: {
-	                  left: left + leftCorrect + 'px',
-	                  width: labelWidth + 'px',
-	                  height: headerLabelGroupHeight + 'px',
-	                  lineHeight: headerLabelGroupHeight + 'px',
-	                  cursor: 'pointer'
-	                } },
-	              _this3.headerLabel(time, nextUnit, labelWidth)
-	            ));
-	          });
-	        })();
+	          timeLabels.push(_react2.default.createElement(
+	            'div',
+	            { key: 'top-label-' + time.valueOf(),
+	              href: '#',
+	              className: 'rct-label-group',
+	              'data-time': time,
+	              'data-unit': nextUnit,
+	              style: {
+	                left: left + leftCorrect + 'px',
+	                width: labelWidth + 'px',
+	                height: headerLabelGroupHeight + 'px',
+	                lineHeight: headerLabelGroupHeight + 'px',
+	                cursor: 'pointer'
+	              } },
+	            _this3.headerLabel(time, nextUnit, labelWidth)
+	          ));
+	        });
 	      }
 	
 	      (0, _utils.iterateTimes)(canvasTimeStart, canvasTimeEnd, minUnit, timeSteps, function (time, nextTime) {

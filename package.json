@@ -42,7 +42,8 @@
   },
   "dependencies": {
     "interact.js": "^1.2.6",
-    "react-pure-render": "^1.0.2"
+    "react-pure-render": "^1.0.2",
+    "semantic-ui-react": "^0.68.2"
   },
   "peerDependencies": {
     "interact.js": "*",

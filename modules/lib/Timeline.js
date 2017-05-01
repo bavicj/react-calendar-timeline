@@ -150,11 +150,11 @@ var ReactCalendarTimeline = function (_Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      this.resize();
+      this.resize(this.props);
 
       this.resizeEventListener = {
         handleEvent: function handleEvent(event) {
-          _this2.resize();
+          _this2.resize(_this2.props);
         }
       };
 
@@ -176,15 +176,19 @@ var ReactCalendarTimeline = function (_Component) {
     }
   }, {
     key: 'resize',
-    value: function resize() {
+    value: function resize(props) {
       // FIXME currently when the component creates a scroll the scrollbar is not used in the initial width calculation, resizing fixes this
       var _refs$container$getBo = this.refs.container.getBoundingClientRect(),
           containerWidth = _refs$container$getBo.width,
           containerTop = _refs$container$getBo.top;
 
-      var width = containerWidth - this.props.sidebarWidth;
+      if (containerWidth > this.refs.container.clientWidth) {
+        containerWidth = this.refs.container.clientWidth;
+      }
 
-      var _stackItems = this.stackItems(this.props.items, this.props.groups, this.state.canvasTimeStart, this.state.visibleTimeStart, this.state.visibleTimeEnd, width),
+      var width = containerWidth - props.sidebarWidth;
+
+      var _stackItems = this.stackItems(props.items, props.groups, this.state.canvasTimeStart, this.state.visibleTimeStart, this.state.visibleTimeEnd, width),
           dimensionItems = _stackItems.dimensionItems,
           height = _stackItems.height,
           groupHeights = _stackItems.groupHeights,
@@ -206,7 +210,8 @@ var ReactCalendarTimeline = function (_Component) {
       var visibleTimeStart = nextProps.visibleTimeStart,
           visibleTimeEnd = nextProps.visibleTimeEnd,
           items = nextProps.items,
-          groups = nextProps.groups;
+          groups = nextProps.groups,
+          sidebarWidth = nextProps.sidebarWidth;
 
 
       if (visibleTimeStart && visibleTimeEnd) {
@@ -215,6 +220,9 @@ var ReactCalendarTimeline = function (_Component) {
 
       if (items !== this.props.items || groups !== this.props.groups) {
         this.updateDimensions(items, groups);
+      }
+      if (sidebarWidth && items && groups) {
+        this.resize(nextProps);
       }
     }
   }, {
